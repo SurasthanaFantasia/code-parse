@@ -11,6 +11,8 @@ type TSign = {
 type TSigns = Readonly<{
   keywordStart: TSign;
   keywordEnd: TSign;
+  quotationStart: TSign;
+  quotationEnd: TSign;
 }>;
 
 type TEntityChar = Readonly<{
@@ -32,6 +34,14 @@ const Signs: Readonly<TSigns> = {
   keywordEnd: {
     value: '$[sign-keyword-end]',
     html: `</span>`,
+  },
+  quotationStart: {
+    value: '$[sign-quotation-start]',
+    html: `<span class="sc-hl--quotation">"`,
+  },
+  quotationEnd: {
+    value: '$[sign-quotation-end]',
+    html: `"</span>`,
   },
 };
 
@@ -72,12 +82,36 @@ export class Transition {
   }
 
   /**
-   * @description 标记双引号
+   * @description 标记双引号   java可以用双指针算法
    * @remark 只针对单行语句 ,多行必须抽象语法树
    * @date 20230331
+   * @example
+   *    原句: `printf("在第4的位置插入元素5：", "nihao test")`
+   *    转换: `printf($[sign-quotation-start]在第4的位置插入元素5：$[sign-quotation-end], $[sign-quotation-start]nihao test$[sign-quotation-end])`
    */
   private signQuotation() {
     if (!this.rule.quotation) return this;
+    const matchs = [...this.row.matchAll(/"/g)];
+    if (matchs.length < 2) return this;
+    if (matchs.length % 2 !== 0) matchs.pop();
+    const matchIndexs = matchs.map((item) => item.index);
+    let tempStr = '';
+
+    for (let i = 0; i < matchIndexs.length; i++) {
+      if (i === 0) {
+        tempStr += this.row.substring(0, matchIndexs[i]);
+      } else {
+        tempStr += this.row.substring(matchIndexs[i - 1] + 1, matchIndexs[i]);
+      }
+      i % 2 === 0
+        ? (tempStr += Signs.quotationStart.value)
+        : (tempStr += Signs.quotationEnd.value);
+      if (i === matchIndexs.length - 1) {
+        tempStr += this.row.substring(matchIndexs[i] + 1);
+      }
+    }
+
+    this.row = tempStr;
     return this;
   }
 
@@ -118,13 +152,23 @@ export class Transition {
    * @link https://www.w3school.com.cn/html/html_entities.asp
    */
   private handleEntityCharacter() {
+    for (const key in EntityCharacters) {
+      const ec = EntityCharacters[key] as TEntityChar;
+      this.row = this.row.split(ec.value).join(ec.replace);
+    }
     return this;
   }
 
   public exec() {
-    return this.signKeyword()
-      .signQuotation()
+    return this.signKeyword() // 1->2
+      .signQuotation() // 1->2
       .handleEntityCharacter()
-      .handleSigns().row;
+      .handleSigns().row; // 2->3
   }
 }
+
+/**
+ *1. #include <stdio.h>
+ *2. $[sign-keyword-start]#include$[sign-keyword-end] <stdio.h>
+ *3. <span class="sc-hl--keyword">#include</span> <stdio.h>
+ */

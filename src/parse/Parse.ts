@@ -12,29 +12,42 @@ export class Parse {
     this.keywords = setFilePack(fileType);
   }
 
-  transitionRows() {
+  /**
+   * @description 翻译每行代码成HTML结构
+   */
+  private transitionRows() {
     const rows = [];
     for (const row of this.codeRows) {
       rows.push(new Transition(row, this.keywords).exec());
     }
     this.codeRows = rows;
+    return this;
   }
 
-  joinRows() {
+  /**
+   * @description 给每行代码拼装上id 的html结构
+   */
+  private setLineHTML() {
+    this.codeRows = this.codeRows.map((item, index) => {
+      item = `<div id="sc-source--line__${index + 1}" class="sc-source--line"> 
+                <span class="sc-line--number">${index + 1}</span>${item}</div>`;
+      return item;
+    });
+    return this;
+  }
+
+  /**
+   * @description 将每行代码(数组形式) 转换成HTML文本
+   */
+  private joinRows() {
     const codeHTML = this.codeRows.reduce(
       (pre, cur, index) => `${pre}${index === 0 ? '' : '\n'}${cur}`,
       '',
     );
-
     return codeHTML;
   }
 
   public exec() {
-    console.log('exec');
+    return this.transitionRows().setLineHTML().joinRows();
   }
-
-  // addLines() {
-  //   this.rows = `<div id="sc-source--line__${this.rowIndex}" class="source-line">${this.rowIndex} ${this.rows}</div>`;
-  //   return this;
-  // }
 }

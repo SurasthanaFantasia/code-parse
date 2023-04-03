@@ -9,6 +9,9 @@ export enum FileType {
   java = 'java',
 }
 
+/**
+ * @returns 返回代码类型关键字 用来高亮展示
+ */
 export function setFilePack(type: FileType): Set<string> {
   let KeyWords: Set<string>;
   switch (type) {

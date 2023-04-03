@@ -20,7 +20,7 @@ int main()
   link *p = initLink();
   display(p);
 
-  printf("在第4的位置插入元素5：\n");
+  printf("在第4的位置插入元素5：\n", "nihao test");
   p = insertElem(p, 5, 4);
   display(p);
 

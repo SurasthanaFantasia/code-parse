@@ -7,11 +7,18 @@ type FileContent = {
   type: FileType;
 };
 
+/**
+ *
+ * @returns {
+ *  fileStr:文件文本内容 utf8
+ *  type: 文件类型-FileType
+ * }
+ */
 export function readFile(): FileContent {
   return {
     fileStr: readFileSync(
-      resolve(__dirname, '../../template/template.c'),
+      resolve(__dirname, '../../template/template.java'),
     ).toString(),
-    type: FileType.c,
+    type: FileType.java,
   };
 }
