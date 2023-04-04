@@ -26,59 +26,59 @@ type TEntityCharacters = {
   less: TEntityChar
 }
 
-const Signs: Readonly<TSigns> = {
-  keywordStart: {
-    value: '$[sign-keyword-start]',
-    html: `<span class="sc-hl--keyword">`
-  },
-  keywordEnd: {
-    value: '$[sign-keyword-end]',
-    html: `</span>`
-  },
-  quotationStart: {
-    value: '$[sign-quotation-start]',
-    html: `<span class="sc-hl--quotation">"`
-  },
-  quotationEnd: {
-    value: '$[sign-quotation-end]',
-    html: `"</span>`
-  }
-}
-
-const EntityCharacters: Readonly<TEntityCharacters> = {
-  blank: {
-    value: ' ',
-    replace: '&nbsp;'
-  },
-  greater: {
-    value: '>',
-    replace: '&gt;'
-  },
-  less: {
-    value: '<',
-    replace: '&lt;'
-  }
-}
-
-const InitRule: Readonly<Rule> = {
-  keyword: true,
-  quotation: true
-}
-
 /**
  * @description 处理单行代码文本
  * @param row 单行代码
  * @param rule 代码规则
  * @param keywords 关键字匹配Set
+ * @param InitRule 初始化代码规则条件
+ * @param Signs 代码标记集合
+ * @param EntityCharacters 字符实体集合
  */
 export class Transition {
   private row: string
   private rule: Rule
   private keywords: Set<string>
+  private static InitRule: Readonly<Rule> = {
+    keyword: true,
+    quotation: true
+  }
+  private static Signs: Readonly<TSigns> = {
+    keywordStart: {
+      value: '$[sign-keyword-start]',
+      html: `<span class="sc-hl--keyword">`
+    },
+    keywordEnd: {
+      value: '$[sign-keyword-end]',
+      html: `</span>`
+    },
+    quotationStart: {
+      value: '$[sign-quotation-start]',
+      html: `<span class="sc-hl--quotation">"`
+    },
+    quotationEnd: {
+      value: '$[sign-quotation-end]',
+      html: `"</span>`
+    }
+  }
+  private static EntityCharacters: Readonly<TEntityCharacters> = {
+    blank: {
+      value: ' ',
+      replace: '&nbsp;'
+    },
+    greater: {
+      value: '>',
+      replace: '&gt;'
+    },
+    less: {
+      value: '<',
+      replace: '&lt;'
+    }
+  }
   constructor(_row: string, _keywords: Set<string>, _rule: Rule = {}) {
     this.row = _row
     this.keywords = _keywords
-    this.rule = { ...InitRule, ..._rule }
+    this.rule = { ...Transition.InitRule, ..._rule }
   }
 
   /**
@@ -103,7 +103,7 @@ export class Transition {
       } else {
         tempStr += this.row.substring(matchIndexs[i - 1] + 1, matchIndexs[i])
       }
-      i % 2 === 0 ? (tempStr += Signs.quotationStart.value) : (tempStr += Signs.quotationEnd.value)
+      i % 2 === 0 ? (tempStr += Transition.Signs.quotationStart.value) : (tempStr += Transition.Signs.quotationEnd.value)
       if (i === matchIndexs.length - 1) {
         tempStr += this.row.substring(matchIndexs[i] + 1)
       }
@@ -121,9 +121,11 @@ export class Transition {
   private signKeyword() {
     if (!this.rule.keyword) return this
     this.row = this.row
-      .split(EntityCharacters.blank.value)
-      .map((word) => (this.keywords.has(word) ? `${Signs.keywordStart.value}${word}${Signs.keywordEnd.value}` : word))
-      .join(EntityCharacters.blank.value)
+      .split(Transition.EntityCharacters.blank.value)
+      .map((word) =>
+        this.keywords.has(word) ? `${Transition.Signs.keywordStart.value}${word}${Transition.Signs.keywordEnd.value}` : word
+      )
+      .join(Transition.EntityCharacters.blank.value)
     return this
   }
 
@@ -132,8 +134,8 @@ export class Transition {
    * @date 20230331
    */
   private handleSigns() {
-    for (const key in Signs) {
-      const sign = Signs[key] as TSign
+    for (const key in Transition.Signs) {
+      const sign = Transition.Signs[key] as TSign
       this.row = this.row.split(sign.value).join(sign.html)
     }
     return this
@@ -146,8 +148,8 @@ export class Transition {
    * @link https://www.w3school.com.cn/html/html_entities.asp
    */
   private handleEntityCharacter() {
-    for (const key in EntityCharacters) {
-      const ec = EntityCharacters[key] as TEntityChar
+    for (const key in Transition.EntityCharacters) {
+      const ec = Transition.EntityCharacters[key] as TEntityChar
       this.row = this.row.split(ec.value).join(ec.replace)
     }
     return this
