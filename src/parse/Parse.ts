@@ -1,27 +1,27 @@
-import { FileType, setFilePack } from 'src/package/setFilePack';
-import { Transition } from './Transition';
+import { FileType, setFilePack } from 'src/package/setFilePack'
+import { Transition } from './Transition'
 
 /**
  * @description 处理整个代码文本
  */
 export class Parse {
-  codeRows: string[];
-  keywords: Set<string>;
+  codeRows: string[]
+  keywords: Set<string>
   constructor(fileStr: string, fileType: FileType) {
-    this.codeRows = fileStr.split('\n');
-    this.keywords = setFilePack(fileType);
+    this.codeRows = fileStr.split('\n')
+    this.keywords = setFilePack(fileType)
   }
 
   /**
    * @description 翻译每行代码成HTML结构
    */
   private transitionRows() {
-    const rows = [];
+    const rows = []
     for (const row of this.codeRows) {
-      rows.push(new Transition(row, this.keywords).exec());
+      rows.push(new Transition(row, this.keywords).exec())
     }
-    this.codeRows = rows;
-    return this;
+    this.codeRows = rows
+    return this
   }
 
   /**
@@ -30,24 +30,21 @@ export class Parse {
   private setLineHTML() {
     this.codeRows = this.codeRows.map((item, index) => {
       item = `<div id="sc-source--line__${index + 1}" class="sc-source--line"> 
-                <span class="sc-line--number">${index + 1}</span>${item}</div>`;
-      return item;
-    });
-    return this;
+                <span class="sc-line--number">${index + 1}</span>${item}</div>`
+      return item
+    })
+    return this
   }
 
   /**
    * @description 将每行代码(数组形式) 转换成HTML文本
    */
   private joinRows() {
-    const codeHTML = this.codeRows.reduce(
-      (pre, cur, index) => `${pre}${index === 0 ? '' : '\n'}${cur}`,
-      '',
-    );
-    return codeHTML;
+    const codeHTML = this.codeRows.reduce((pre, cur, index) => `${pre}${index === 0 ? '' : '\n'}${cur}`, '')
+    return codeHTML
   }
 
   public exec() {
-    return this.transitionRows().setLineHTML().joinRows();
+    return this.transitionRows().setLineHTML().joinRows()
   }
 }

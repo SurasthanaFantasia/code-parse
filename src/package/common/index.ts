@@ -29,5 +29,5 @@ export const commonKeyWords = new Set([
   'union',
   'void',
   'volatile',
-  'while',
-]);
+  'while'
+])

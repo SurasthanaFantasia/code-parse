@@ -1,11 +1,11 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-import { FileType } from '../package/setFilePack';
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+import { FileType } from '../package/setFilePack'
 
 type FileContent = {
-  fileStr: string;
-  type: FileType;
-};
+  fileStr: string
+  type: FileType
+}
 
 /**
  *
@@ -16,9 +16,7 @@ type FileContent = {
  */
 export function readFile(): FileContent {
   return {
-    fileStr: readFileSync(
-      resolve(__dirname, '../../template/template.java'),
-    ).toString(),
-    type: FileType.java,
-  };
+    fileStr: readFileSync(resolve(__dirname, '../../template/template.java')).toString(),
+    type: FileType.java
+  }
 }
