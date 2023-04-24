@@ -1,5 +1,6 @@
 import { FileType, setFilePack } from 'src/package/setFilePack'
 import { Transition } from './Transition'
+import { setDefectInCodeHTML } from './defectInCode'
 
 /**
  * @description 处理整个代码文本
@@ -30,7 +31,7 @@ export class Parse {
   private setLineHTML() {
     this.codeRows = this.codeRows.map((item, index) => {
       item = `<div id="sc-source--line__${index + 1}" class="sc-source--line"> 
-                <span class="sc-line--number">${index + 1}</span>${item}</div>`
+                <span class="sc-line--number">${index + 1}</span>${item}${setDefectInCodeHTML(index)}</div>`
       return item
     })
     return this
